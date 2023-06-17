@@ -6,7 +6,10 @@ const EditEventPage = () => {
   return (
     <>
       <h1>EditEventPage</h1>
-      <EventForm event={data.event} />
+      <EventForm
+        event={data.event}
+        method="patch"
+      />
     </>
   );
 };

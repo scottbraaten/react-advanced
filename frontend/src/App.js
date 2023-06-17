@@ -29,10 +29,15 @@ import HomePage from "./pages/HomePage";
 import EventsPage, { loader as eventsLoader } from "./pages/EventsPage";
 import EventDetailPage, {
   loader as eventDetailLoader,
+  action as eventDetailAction,
 } from "./pages/EventDetailPage";
 import NewEventPage from "./pages/NewEventPage";
 import EditEventPage from "./pages/EditEventPage";
 import ErrorPage from "./pages/ErrorPage";
+import { action as manipulateEventAction } from "./components/EventForm";
+import NewsletterPage, {
+  action as newsletterAction,
+} from "./pages/NewsletterPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -59,13 +64,26 @@ function App() {
                 {
                   index: true,
                   element: <EventDetailPage />,
+                  action: eventDetailAction,
                 },
-                { path: "edit", element: <EditEventPage /> },
+                {
+                  path: "edit",
+                  element: <EditEventPage />,
+                  action: manipulateEventAction,
+                },
               ],
             },
-
-            { path: "new", element: <NewEventPage /> },
+            {
+              path: "new",
+              element: <NewEventPage />,
+              action: manipulateEventAction,
+            },
           ],
+        },
+        {
+          path: "newsletter",
+          element: <NewsletterPage />,
+          action: newsletterAction,
         },
       ],
     },

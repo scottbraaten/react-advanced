@@ -1,15 +1,36 @@
-import { useNavigate } from "react-router-dom";
+import {
+  Form,
+  json,
+  redirect,
+  useActionData,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
 
 import classes from "./EventForm.module.css";
 
 function EventForm({ method, event }) {
+  const actionData = useActionData();
   const navigate = useNavigate();
+  const navigation = useNavigation();
+
+  const isSubmitting = navigation.state === "submitting";
   function cancelHandler() {
     navigate("..");
   }
 
   return (
-    <form className={classes.form}>
+    <Form
+      method={method}
+      className={classes.form}
+    >
+      {actionData && actionData.errors && (
+        <ul>
+          {Object.values(actionData.errors).map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
       <p>
         <label htmlFor="title">Title</label>
         <input
@@ -57,10 +78,47 @@ function EventForm({ method, event }) {
         >
           Cancel
         </button>
-        <button>Save</button>
+        <button disabled={isSubmitting}>
+          {isSubmitting ? "Submitting" : "Save"}
+        </button>
       </div>
-    </form>
+    </Form>
   );
 }
 
 export default EventForm;
+
+export const action = async ({ request, params }) => {
+  const method = request.method;
+  const data = await request.formData();
+
+  const eventData = {
+    title: data.get("title"),
+    image: data.get("image"),
+    date: data.get("date"),
+    description: data.get("description"),
+  };
+
+  let url =
+    method === "PATCH"
+      ? "http://localhost:8080/events/" + params.id
+      : "http://localhost:8080/events";
+
+  const response = await fetch(url, {
+    method: method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(eventData),
+  });
+
+  if (response.status === 422) {
+    return response;
+  }
+
+  if (!response.ok) {
+    throw json({ message: "not save", status: 500 });
+  }
+
+  return redirect("/events");
+};
